@@ -1,0 +1,373 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Reto 28 Días · Verano sin Polera</title>
+<meta name="theme-color" content="#fbfaf7">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icono-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--fondo:#fbfaf7;--gris:#e9e9e9;--tinta:#111;--suave:#8a8a8a;--turquesa:#5fe0c8}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{background:var(--fondo);color:var(--tinta);font-family:Inter,system-ui,sans-serif}
+body{min-height:100vh;display:flex;justify-content:center}
+.app{width:100%;max-width:480px;padding:22px 16px 28px;display:flex;flex-direction:column;min-height:100vh}
+.titulo{background:var(--gris);border-radius:10px;padding:18px 10px;text-align:center;font-weight:800;font-size:clamp(15px,4.6vw,21px);letter-spacing:.2px}
+.datos{display:grid;grid-template-columns:1fr 1fr;margin:20px 4px 0}
+.etq{font-size:13px;color:var(--suave);font-weight:500}
+.val{font-size:19px;font-weight:700;margin-top:4px}
+.val small{font-size:19px;color:var(--suave);font-weight:600}
+.val button{all:unset;cursor:pointer}
+.prog{margin:16px 4px 0;display:flex;justify-content:space-between;align-items:flex-end}
+.prog .n{font-size:19px;font-weight:800;margin-top:2px}
+.prog .n span{color:var(--suave);font-weight:700}
+.racha{font-size:13px;font-weight:800;background:#fff3e6;color:#c25b00;border-radius:20px;padding:6px 10px;white-space:nowrap}
+.barra{height:16px;background:#f0f0f0;border-radius:9px;margin:14px 6px 0;position:relative;overflow:hidden}
+.barra i{position:absolute;left:0;top:0;bottom:0;min-width:32px;background:#000;border-radius:9px;transition:width .6s ease}
+.grilla{display:grid;grid-template-columns:repeat(6,1fr);gap:14px 8px;margin-top:26px}
+.dia{display:flex;flex-direction:column;align-items:center;cursor:pointer;user-select:none}
+.mini{width:100%;aspect-ratio:1;border-radius:8px;background:#efefef;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.mini img{width:118%;height:118%;object-fit:contain;mix-blend-mode:multiply}
+.dia.hecho .mini{background:#bdbdbd}
+.dia.hecho .mini::after{content:"✓";position:absolute;right:3px;bottom:1px;font-weight:900;font-size:13px;color:#111}
+.dia.hoy .mini{background:#d9d9d9;outline:2px solid var(--turquesa);outline-offset:-2px}
+.candado{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
+.candado svg{width:56%;height:56%;opacity:.82}
+.dia .d{font-size:13.5px;font-weight:700;margin-top:6px;white-space:nowrap}
+.dia.bloq{cursor:default}
+.marca{margin-top:auto;padding-top:30px;display:flex;align-items:center;justify-content:center;gap:10px;color:#444;font-weight:800;font-size:22px}
+.marca b{width:42px;height:42px;border-radius:50%;background:#8aa4f6;display:flex;align-items:center;justify-content:center}
+.aviso{font-size:11.5px;color:#9a9a9a;text-align:center;margin-top:14px;line-height:1.4}
+/* tarjeta del día */
+.velo{position:fixed;inset:0;background:rgba(251,250,247,.6);display:none;align-items:center;justify-content:center;z-index:10;padding:16px;overflow:auto}
+.velo.on{display:flex}
+.tarjeta{width:min(92vw,440px);background:#fff;border-radius:22px;position:relative;padding:22px 16px 18px;text-align:center;box-shadow:0 10px 40px rgba(0,0,0,.12);transform:scale(.2);opacity:0;transition:transform .35s cubic-bezier(.2,.9,.3,1.2),opacity .25s;margin:auto}
+.velo.on .tarjeta{transform:scale(1);opacity:1}
+.tarjeta svg.borde{position:absolute;inset:-5px;width:calc(100% + 10px);height:calc(100% + 10px);pointer-events:none;overflow:visible}
+.tarjeta .dd{font-weight:900;font-style:italic;font-size:clamp(34px,10vw,46px);letter-spacing:-.5px}
+.fig{height:clamp(220px,60vw,290px);display:flex;align-items:center;justify-content:center;margin-top:2px;position:relative}
+.fig video,.fig img{max-width:100%;max-height:100%;object-fit:contain;mix-blend-mode:multiply}
+.series{font-weight:900;font-size:clamp(30px,9vw,40px);color:#fff;-webkit-text-stroke:2.2px #000;paint-order:stroke fill;margin-top:-30px;position:relative;letter-spacing:.5px}
+.nom{font-weight:800;font-size:17px;margin-top:10px}
+.estado{font-size:14px;color:var(--suave);margin-top:4px;font-weight:600;min-height:20px;line-height:1.35}
+.reloj{font-size:44px;font-weight:900;margin-top:4px;font-variant-numeric:tabular-nums}
+.reloj.desc{color:#1aa58c}
+.ctrl{display:flex;gap:10px;justify-content:center;margin-top:12px}
+.ctrl button{border:0;border-radius:24px;padding:12px 20px;font:700 15px Inter,sans-serif;cursor:pointer;background:#e3e3e3;color:#111}
+.ctrl button.pri{background:#000;color:#fff;min-width:110px}
+.puntos{display:flex;gap:6px;justify-content:center;margin-top:12px}
+.puntos i{width:8px;height:8px;border-radius:50%;background:#d0d0d0}
+.puntos i.on{background:#000}
+.lista{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}
+.lista div{font-size:11px;font-weight:700;color:#444;line-height:1.2}
+.lista img{width:100%;aspect-ratio:4/3;object-fit:contain;background:#f4f4f4;border-radius:8px;mix-blend-mode:multiply;margin-bottom:4px}
+.lista .act img{outline:2px solid var(--turquesa)}
+.sig{display:none;align-items:center;gap:10px;justify-content:center;margin-top:8px;font-size:13px;font-weight:700;color:#444}
+.sig img{width:64px;aspect-ratio:4/3;object-fit:contain;background:#f4f4f4;border-radius:6px}
+.sig.on{display:flex}
+.voz{position:absolute;top:14px;right:14px;border:0;background:#f1f1f1;border-radius:50%;width:36px;height:36px;font-size:17px;cursor:pointer}
+/* portada */
+.portada{position:fixed;inset:0;background:#000;color:#fff;z-index:20;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer}
+.portada h1{font-weight:900;font-style:italic;font-size:clamp(34px,10vw,52px);letter-spacing:-.5px;text-align:center;padding:0 16px}
+.flechas{margin-top:60px;display:flex;flex-direction:column;align-items:center}
+.flechas svg{width:100px;height:56px;margin-top:-18px;animation:baja 1.4s infinite}
+.flechas svg:nth-child(2){animation-delay:.15s}.flechas svg:nth-child(3){animation-delay:.3s}
+@keyframes baja{0%,100%{opacity:.35;transform:translateY(0)}50%{opacity:1;transform:translateY(6px)}}
+.portada .marca{position:absolute;bottom:34px;color:#fff;margin:0;padding:0}
+.toast{position:fixed;left:50%;bottom:30px;transform:translateX(-50%);background:#000;color:#fff;padding:12px 18px;border-radius:24px;font-weight:700;font-size:14px;opacity:0;transition:opacity .3s;z-index:30;pointer-events:none;text-align:center;max-width:90vw}
+.toast.on{opacity:1}
+.quiz{position:fixed;inset:0;z-index:22;background:var(--fondo);display:none;flex-direction:column;align-items:center;padding:28px 18px;overflow:auto}
+.quiz.on{display:flex}
+.quiz .paso{width:100%;max-width:440px}
+.quiz .barq{height:6px;background:#eee;border-radius:4px;margin-bottom:22px;overflow:hidden}.quiz .barq i{display:block;height:100%;background:#000;transition:width .3s}
+.quiz h2{font-weight:900;font-style:italic;font-size:30px;letter-spacing:-.3px;line-height:1.1}
+.quiz p.s{color:var(--suave);font-weight:600;margin:8px 0 18px;font-size:15px}
+.quiz .op{display:block;width:100%;text-align:left;border:2px solid #e3e3e3;background:#fff;border-radius:14px;padding:16px;margin-bottom:10px;font:700 17px Inter,sans-serif;cursor:pointer;color:#111}
+.quiz .op small{display:block;font-weight:500;color:var(--suave);font-size:13px;margin-top:3px}
+.quiz .op:active,.quiz .op.sel{border-color:var(--turquesa);background:#effbf8}
+.quiz input{width:100%;border:2px solid #e3e3e3;border-radius:14px;padding:16px;font:800 22px Inter,sans-serif;margin-bottom:12px}
+.quiz .go{width:100%;border:0;border-radius:28px;padding:16px;font:800 17px Inter,sans-serif;background:#000;color:#fff;margin-top:8px;cursor:pointer}
+.quiz .res{background:#fff;border-radius:16px;padding:18px;margin:14px 0;box-shadow:0 4px 18px rgba(0,0,0,.06)}
+.quiz .res div{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f1f1f1;font-weight:700}
+.quiz .res div:last-child{border:0}.quiz .res span{color:var(--suave);font-weight:600}
+.facil{margin-top:8px;border:0;border-radius:20px;padding:7px 14px;font:800 13px Inter,sans-serif;background:#f1f1f1;color:#333;cursor:pointer}
+.facil.on{background:#dff7f1;color:#0c7d68}
+.fiesta input{margin-top:14px;width:180px;text-align:center;border:0;border-radius:12px;padding:12px;font:800 20px Inter,sans-serif}
+.fiesta{position:fixed;inset:0;z-index:25;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.82);color:#fff;text-align:center;padding:24px;flex-direction:column}
+.fiesta.on{display:flex}
+.fiesta h2{font-weight:900;font-style:italic;font-size:40px}
+.fiesta p{margin-top:10px;font-size:17px;font-weight:600;max-width:340px;line-height:1.4}
+.fiesta button{margin-top:22px;border:0;border-radius:24px;padding:14px 26px;font:800 16px Inter,sans-serif;background:var(--turquesa);color:#000}
+</style>
+</head>
+<body>
+<div class="portada" id="portada">
+  <h1>¡TOCA PARA EMPEZAR!</h1>
+  <div class="flechas">
+    <svg viewBox="0 0 100 56"><path d="M8 4 50 40 92 4v16L50 56 8 20z" fill="#fff"/></svg>
+    <svg viewBox="0 0 100 56"><path d="M8 4 50 40 92 4v16L50 56 8 20z" fill="#fff"/></svg>
+    <svg viewBox="0 0 100 56"><path d="M8 4 50 40 92 4v16L50 56 8 20z" fill="#fff"/></svg>
+  </div>
+  <div class="marca"><b><svg width="26" height="26" viewBox="0 0 24 24"><path d="M5 20V9h3v11zm5.5 0V4h3v16zm5.5 0v-8h3v8z" fill="#fff"/></svg></b>Verano sin Polera</div>
+</div>
+
+<div class="app">
+  <div class="titulo">RETO VERANO SIN POLERA</div>
+  <div class="datos">
+    <div><div class="etq">Objetivo principal</div><div class="val" id="obj">Ponerme en forma</div></div>
+    <div><div class="etq">Peso actual</div><div class="val"><button id="peso"><span id="kg">80</span> <small>kg</small></button></div></div>
+  </div>
+  <div class="prog">
+    <div><div class="etq">Tu progreso</div><div class="n"><b id="hechos">0</b> <span>de 28 entrenamientos</span></div></div>
+    <div class="racha" id="racha" hidden>🔥 0 días seguidos</div>
+  </div>
+  <div class="barra"><i id="barra"></i></div>
+  <div class="grilla" id="grilla"></div>
+  <div class="marca"><b><svg width="26" height="26" viewBox="0 0 24 24"><path d="M5 20V9h3v11zm5.5 0V4h3v16zm5.5 0v-8h3v8z" fill="#fff"/></svg></b>Verano sin Polera</div>
+  <div class="aviso">Antes de empezar cualquier rutina, consulta a tu médico si tienes alguna lesión o condición de salud. Usa una silla firme y sin ruedas. Si sientes dolor o mareo, detente.</div>
+</div>
+
+<div class="velo" id="velo">
+  <div class="tarjeta" id="tarjeta">
+    <svg class="borde"><rect id="borde-rect" x="2.5" y="2.5" rx="24" ry="24" fill="none" stroke="var(--turquesa)" stroke-width="5" stroke-linecap="round"/></svg>
+    <button class="voz" id="b-voz" title="Voz">🔊</button>
+    <div class="dd" id="tt">DÍA 1</div>
+    <div class="fig" id="fig"></div>
+    <div class="series" id="series">3X20 SEG</div>
+    <div class="nom" id="nom"></div>
+    <button class="facil" id="b-facil" hidden>Versión fácil</button>
+    <div class="estado" id="estado"></div>
+    <div class="reloj" id="reloj">0:20</div>
+    <div class="sig" id="sig"><img id="sig-img" alt=""><span id="sig-txt"></span></div>
+    <div class="puntos" id="puntos"></div>
+    <div class="lista" id="lista"></div>
+    <div class="ctrl">
+      <button id="b-salir">Salir</button>
+      <button class="pri" id="b-play">Empezar</button>
+      <button id="b-saltar">Saltar</button>
+    </div>
+  </div>
+</div>
+<div class="fiesta" id="fiesta"><h2 id="f-tit">¡DÍA 1 LISTO!</h2><p id="f-txt"></p><input id="f-cin" type="number" inputmode="numeric" placeholder="Cintura (cm)" hidden><button id="f-ok">Seguir</button></div>
+<div class="quiz" id="quiz"><div class="paso" id="q-paso"></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+// ---- 28 ejercicios (ilustraciones propias del reto) ----
+const EJ = {
+ d01:{n:"Patadas sentado",t:"Siéntate en la orilla y apóyate atrás con las manos. Piernas estiradas: patea arriba y abajo, cortito y controlado."},
+ d02:{n:"Giro de tronco",t:"Espalda derecha y manos en la nuca. Gira el tronco a un lado y al otro, sin apurarte."},
+ d03:{n:"Toque al pie cruzado",t:"Piernas abiertas. Baja una mano al pie contrario y sube el otro brazo. Alterna."},
+ d04:{n:"Sentadilla a la silla",t:"De pie frente a la silla, brazos adelante. Baja la cadera como para sentarte y vuelve a subir."},
+ d05:{n:"Rodilla al pecho",t:"Sentado derecho, tomado del asiento. Sube una rodilla apretando el abdomen. Alterna."},
+ d06:{n:"Codo a rodilla",t:"Manos en la nuca. Lleva el codo hacia la rodilla contraria. Alterna."},
+ d07:{n:"Brazos arriba",t:"Sentado firme. Baja los codos a la altura de los hombros y empuja los brazos arriba otra vez."},
+ d08:{n:"Elevación de pierna estirada",t:"Apoyado atrás, baja la pierna estirada casi al piso y súbela. Cambia de pierna a la mitad."},
+ d09:{n:"Flexiones en la silla",t:"Manos en el asiento y cuerpo recto. Baja el pecho hacia la silla y empuja. Silla contra la pared."},
+ d10:{n:"Fondos de tríceps",t:"De espaldas a la silla, manos en la orilla. Baja la cadera doblando los codos y vuelve a subir."},
+ d11:{n:"Inclinación lateral",t:"Manos en la nuca. Inclina el tronco hacia un lado, vuelve al centro y cambia de lado."},
+ d12:{n:"Estiramiento hacia adelante",t:"Deja caer el tronco entre las rodillas y suelta la espalda. Sube despacio, vértebra por vértebra."},
+ d13:{n:"Bicicleta sentado",t:"Apoyado atrás, pedalea: una rodilla al pecho mientras estiras la otra pierna."},
+ d14:{n:"Zancada con pie en la silla",t:"Empeine atrás sobre el asiento. Baja la rodilla de adelante y sube. Cambia de pierna a la mitad."},
+ d15:{n:"Sentadilla con apoyo",t:"Tomado del respaldo, baja la cadera atrás y sube. La silla te da equilibrio."},
+ d16:{n:"Patada de glúteo",t:"Tomado del respaldo, lleva una pierna estirada hacia atrás y arriba. Cambia a la mitad."},
+ d17:{n:"Pierna al costado",t:"Una mano en el respaldo. Sube la pierna hacia el lado y bájala. Cambia a la mitad."},
+ d18:{n:"Puntillas con apoyo",t:"Tomado del respaldo, sube en puntillas y baja los talones despacio."},
+ d19:{n:"Remo sentado",t:"Estira los brazos adelante y tira los codos atrás apretando la espalda."},
+ d20:{n:"Círculos de brazos",t:"Brazos estirados a los lados. Haz círculos chicos. Cambia de dirección a la mitad."},
+ d21:{n:"Golpes sentado",t:"Golpea adelante alternando los brazos, rápido pero sin trabar los codos."},
+ d22:{n:"Abdominal hacia atrás",t:"Brazos cruzados. Inclínate atrás sin apoyarte y vuelve a subir con el abdomen."},
+ d23:{n:"Extensión de rodilla",t:"Sentado derecho, estira la pierna adelante y bájala. Cambia a la mitad."},
+ d24:{n:"Rodillas juntas al pecho",t:"Apoyado atrás, estira las dos piernas y vuelve a traer las rodillas al pecho."},
+ d25:{n:"Puente con pies en la silla",t:"De espalda en el suelo, talones en el asiento. Sube la cadera y baja despacio."},
+ d26:{n:"Escaladores en la silla",t:"Manos en el asiento, cuerpo recto. Lleva las rodillas al pecho alternando. Silla contra la pared."},
+ d27:{n:"Giro con brazos estirados",t:"Brazos estirados y manos juntas. Gira el tronco de lado a lado."},
+ d28:{n:"Pararse y sentarse",t:"Brazos cruzados. Párate sin usar las manos y siéntate despacio."},
+};
+const FACIL = {d09:"f09", d10:"f10", d14:"f14", d22:"f22", d25:"f25", d26:"f26", d28:"f28"};
+Object.assign(EJ, {
+ f09:{n:"Flexiones en la pared",t:"De pie frente a la pared, manos a la altura de los hombros. Acerca el pecho a la pared y empuja."},
+ f10:{n:"Empuje sentado",t:"Manos en el asiento junto a la cadera. Estira los brazos y despega un poco el cuerpo del asiento."},
+ f14:{n:"Zancada con apoyo",t:"Tomado del respaldo, un pie adelante y otro atrás. Baja un poco y sube. Cambia de pierna a la mitad."},
+ f22:{n:"Inclinación suave",t:"Tomado del asiento, inclínate un poco hacia atrás sin apoyarte y vuelve a sentarte derecho."},
+ f25:{n:"Puente en el suelo",t:"De espalda en el suelo, rodillas dobladas y pies apoyados. Sube la cadera y baja despacio."},
+ f26:{n:"Marcha sentado",t:"Sentado derecho, sube las rodillas alternando y mueve los brazos como si marcharas."},
+ f28:{n:"Pararse con ayuda",t:"Empuja con las manos sobre las rodillas para pararte y siéntate despacio."},
+});
+const K = Object.keys(EJ).filter(k=>k[0]==="d");
+const SEM = [{s:3,t:20},{s:3,t:30},{s:4,t:30},{s:4,t:40}]; // series x segundos por semana
+const DESC = 15;
+// cada día: su ejercicio nuevo + 3 ya conocidos, combinando zonas (piernas / abdomen / brazos-espalda)
+const ZONA = {pier:["d04","d08","d14","d15","d16","d17","d18","d23","d25","d28","d01"], abd:["d02","d03","d05","d06","d11","d13","d22","d24","d27","d26"], sup:["d07","d09","d10","d19","d20","d21","d12"]};
+const zonaDe = k => Object.keys(ZONA).find(z=>ZONA[z].includes(k));
+const PLAN = K.map((k,i)=>{
+  const vistos = K.slice(0, Math.max(i+1, 7));
+  const ej=[k];
+  for (const z of ["pier","abd","sup"]) {
+    if (z===zonaDe(k)) continue;
+    const c = vistos.filter(x=>zonaDe(x)===z && !ej.includes(x));
+    if (c.length) ej.push(c[(i*3+ej.length)%c.length]);
+  }
+  while (ej.length<4) { const c=vistos.filter(x=>!ej.includes(x)); ej.push(c[(i*5+ej.length)%c.length]); }
+  return {ej, ...SEM[Math.floor(i/7)]};
+});
+
+function aplicarPerfil(){
+  const pf=LS.get("r28_perfil",null)||{};
+  PLAN.forEach((p,i)=>{const b=SEM[Math.floor(i/7)]; let s=b.s,t=b.t;
+    if(pf.nivel==="bajo"||pf.edad==="70"){t=Math.max(15,t-5);}
+    else if(pf.nivel==="alto"){t=t+10;}
+    p.s=s;p.t=t;});
+}
+const LS={get(k,d){try{const v=localStorage.getItem(k);return v===null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+let facil = LS.get("r28_facil", false);
+let hechos = LS.get("r28_hechos", 0), kg = LS.get("r28_kg", 80), fechas = LS.get("r28_fechas", []), voz = LS.get("r28_voz", true);
+const $=id=>document.getElementById(id);
+const CANDADO='<svg viewBox="0 0 48 56"><path d="M12 24v-8a12 12 0 0 1 24 0v8" fill="none" stroke="#111" stroke-opacity=".8" stroke-width="6"/><rect x="4" y="22" width="40" height="32" rx="5" fill="#111" fill-opacity=".72"/><circle cx="24" cy="35" r="5" fill="#ddd"/><rect x="21.5" y="36" width="5" height="10" rx="2" fill="#ddd"/></svg>';
+const img = k => "ej/"+k+".jpg", vid = k => "ej/"+k+".mp4";
+const ver = k => (facil && FACIL[k]) ? FACIL[k] : k;
+function toast(t){const e=$("toast");e.textContent=t;e.classList.add("on");clearTimeout(toast.h);toast.h=setTimeout(()=>e.classList.remove("on"),2600)}
+function hablar(t){ if(!voz||!window.speechSynthesis) return; try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang="es-CL";const v=speechSynthesis.getVoices().find(v=>/^es(-|_)(CL|419|MX|US|AR|CO)/i.test(v.lang))||speechSynthesis.getVoices().find(v=>/^es/i.test(v.lang));if(v)u.voice=v;u.rate=1.02;speechSynthesis.speak(u);}catch(e){} }
+function hoyStr(d){d=d||new Date();return d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate()}
+function racha(){ if(!fechas.length) return 0; const set=new Set(fechas); let n=0, d=new Date(); if(!set.has(hoyStr(d))) d.setDate(d.getDate()-1); while(set.has(hoyStr(d))){n++;d.setDate(d.getDate()-1);} return n; }
+
+function pintar(){
+  const pf=LS.get("r28_perfil",null); if(pf&&OBJ[pf.obj]) $("obj").textContent=OBJ[pf.obj];
+  $("hechos").textContent=hechos; $("kg").textContent=kg;
+  $("barra").style.width=(hechos/28*100)+"%";
+  const r=racha(); $("racha").hidden=r<2; $("racha").textContent="🔥 "+r+" días seguidos";
+  const g=$("grilla"); g.innerHTML="";
+  PLAN.forEach((p,i)=>{
+    const est = i<hechos?"hecho":(i===hechos?"hoy":"bloq");
+    const d=document.createElement("div"); d.className="dia "+est;
+    d.innerHTML=`<div class="mini"><img src="${img(p.ej[0])}" alt="" loading="lazy">${est==="bloq"?'<div class="candado">'+CANDADO+'</div>':""}</div><div class="d">Día ${i+1}</div>`;
+    d.onclick=()=>{ if(est==="bloq") toast("Termina el Día "+(hechos+1)+" para desbloquear este 🔒"); else abrir(i); };
+    g.appendChild(d);
+  });
+}
+
+// ---- sesión ----
+let S=null, tick=null;
+function largoBorde(){const r=$("borde-rect"),c=$("tarjeta");const w=c.offsetWidth+5,h=c.offsetHeight+5;r.setAttribute("width",w);r.setAttribute("height",h);return 2*(w+h)-(8-2*Math.PI)*24}
+function borde(frac){const L=largoBorde(),r=$("borde-rect");r.style.strokeDasharray=L;r.style.strokeDashoffset=L*(1-Math.max(0,Math.min(1,frac)))}
+function abrir(d){
+  S={d,k:0,serie:1,fase:"listo",resta:PLAN[d].t,corre:false};
+  $("tt").textContent="DÍA "+(d+1); $("velo").classList.add("on"); mostrar(); borde(0);
+}
+function mostrar(){
+  const p=PLAN[S.d], k0=p.ej[S.k], k=ver(k0), e=EJ[k];
+  $("b-facil").hidden=!FACIL[k0]; $("b-facil").classList.toggle("on",facil); $("b-facil").textContent=facil?"Versión fácil ✓":"¿Muy difícil? Versión fácil";
+  $("fig").innerHTML = `<video src="${vid(k)}" poster="${img(k)}" autoplay muted loop playsinline></video>`;
+  $("series").textContent=`${p.s}X${p.t} SEG`; $("nom").textContent=e.n;
+  $("puntos").innerHTML=p.ej.map((_,i)=>`<i class="${i<=S.k?"on":""}"></i>`).join("");
+  $("lista").innerHTML = S.fase==="listo" ? p.ej.map((x,i)=>`<div class="${i===S.k?"act":""}"><img src="${img(ver(x))}" alt="">${EJ[ver(x)].n}</div>`).join("") : "";
+  $("puntos").style.display = S.fase==="listo" ? "none" : "flex";
+  estado();
+}
+function estado(){
+  const p=PLAN[S.d], e=EJ[ver(p.ej[S.k])];
+  const desc = S.fase==="descanso";
+  $("estado").textContent = desc ? "Descansa y respira" : S.fase==="listo" ? `Hoy: 4 ejercicios · unos ${Math.round((p.s*(p.t+DESC))*4/60)} minutos` : e.t;
+  const m=Math.floor(S.resta/60), s=S.resta%60; $("reloj").textContent=m+":"+String(s).padStart(2,"0");
+  $("reloj").classList.toggle("desc",desc);
+  $("b-play").textContent = S.corre?"Pausa":(S.fase==="listo"?"Empezar":"Seguir");
+  const sig = desc ? p.ej[S.k] : null;
+  $("sig").classList.toggle("on", !!sig);
+  if(sig){ $("sig-img").src=img(ver(sig)); $("sig-txt").textContent="Sigue: serie "+S.serie+" de "+p.s; }
+  $("b-voz").textContent = voz?"🔊":"🔇";
+}
+function bip(f,d){try{const a=bip.a||(bip.a=new (window.AudioContext||window.webkitAudioContext)()),o=a.createOscillator(),g=a.createGain();o.frequency.value=f||880;g.gain.value=.09;o.connect(g);g.connect(a.destination);o.start();o.stop(a.currentTime+(d||.16))}catch(e){}}
+function paso(){
+  const p=PLAN[S.d]; S.resta--;
+  const total = S.fase==="descanso"?DESC:p.t; borde(S.fase==="descanso"?S.resta/DESC:1-S.resta/total);
+  if(S.resta<=3&&S.resta>0) bip(660);
+  if(S.fase==="trabajo" && S.resta===Math.floor(p.t/2) && p.t>=30) hablar("Vas en la mitad, sigue así");
+  if(S.resta<=0){
+    bip(990,.3);
+    if(S.fase==="trabajo"){
+      if(S.serie<p.s){S.fase="descanso";S.resta=DESC;S.serie++;hablar("Descansa");}
+      else siguiente(true);
+    } else {S.fase="trabajo";S.resta=p.t;hablar("Vamos, serie "+S.serie);}
+  }
+  estado();
+}
+function siguiente(auto){
+  const p=PLAN[S.d];
+  if(S.k<p.ej.length-1){S.k++;S.serie=1;S.fase=auto?"descanso":"trabajo";S.resta=auto?DESC:p.t;mostrar();hablar((auto?"Descansa. Lo que sigue: ":"")+EJ[ver(p.ej[S.k])].n);}
+  else terminar();
+}
+function terminar(){
+  clearInterval(tick);S.corre=false;
+  const nuevo = S.d===hechos;
+  if(nuevo){hechos++;LS.set("r28_hechos",hechos);}
+  const h=hoyStr(); if(!fechas.includes(h)){fechas.push(h);LS.set("r28_fechas",fechas);}
+  $("velo").classList.remove("on"); pintar();
+  const fin = hechos>=28 && nuevo;
+  $("f-tit").textContent = fin ? "¡RETO COMPLETO!" : "¡DÍA "+(S.d+1)+" LISTO!";
+  $("f-txt").textContent = fin ? "Hiciste los 28 días. Puedes repetir cualquier día o empezar de nuevo con más series." :
+     (nuevo ? "Se desbloqueó el Día "+(S.d+2)+". Mañana sigues: lo que suma es la constancia, no la intensidad." : "¡Bien! Repetir días también cuenta.");
+  const semana = nuevo && (S.d+1)%7===0;
+  $("f-cin").hidden=!semana; $("f-cin").value="";
+  if(semana) $("f-txt").textContent += " Terminaste la semana "+((S.d+1)/7)+": mide tu cintura a la altura del ombligo y anótala.";
+  $("fiesta").classList.add("on"); hablar(fin?"¡Felicitaciones! Completaste el reto de 28 días":"¡Muy bien! Día "+(S.d+1)+" listo");
+}
+$("f-ok").onclick=()=>{
+  const c=parseInt($("f-cin").value);
+  if(!$("f-cin").hidden && c>40 && c<200){ const cs=LS.get("r28_cintura",[]); cs.push(c); LS.set("r28_cintura",cs);
+    const ini=(LS.get("r28_perfil",{}).cintura)||cs[0]; const dif=ini-c;
+    toast(dif>0?"Bajaste "+dif+" cm de cintura desde que empezaste 💪":"Anotado: "+c+" cm. ¡Sigue así!"); }
+  $("fiesta").classList.remove("on");};
+$("b-facil").onclick=()=>{facil=!facil;LS.set("r28_facil",facil);mostrar();};
+$("b-play").onclick=()=>{
+  bip(0,0.001);
+  if(S.corre){clearInterval(tick);S.corre=false;estado();return;}
+  if(S.fase==="listo"){S.fase="trabajo";S.resta=PLAN[S.d].t;mostrar();hablar(EJ[ver(PLAN[S.d].ej[0])].n+". "+EJ[ver(PLAN[S.d].ej[0])].t);}
+  S.corre=true; tick=setInterval(paso,1000); estado();
+};
+$("b-saltar").onclick=()=>{ if(S.fase==="descanso"){S.fase="trabajo";S.resta=PLAN[S.d].t;estado();return;}
+  const corre=S.corre; siguiente(false); if(!$("velo").classList.contains("on"))return; if(!corre){S.fase="listo";S.resta=PLAN[S.d].t;mostrar();} };
+$("b-salir").onclick=()=>{clearInterval(tick);S.corre=false;try{speechSynthesis.cancel()}catch(e){};$("velo").classList.remove("on");};
+$("b-voz").onclick=()=>{voz=!voz;LS.set("r28_voz",voz);estado();if(!voz)try{speechSynthesis.cancel()}catch(e){}};
+$("peso").onclick=()=>{const v=prompt("¿Cuánto pesas hoy? (kg)",kg);const n=parseInt(v);if(n>30&&n<250){kg=n;LS.set("r28_kg",kg);pintar();}};
+const OBJ={abd:"Abdomen más firme",fza:"Más fuerza",ene:"Más energía"};
+function quiz(){
+  const r={}; const q=$("quiz"), c=$("q-paso"); q.classList.add("on");
+  const pasos=[
+   {k:"edad",t:"¿Qué edad tienes?",s:"Ajustamos el plan a tu edad.",o:[["40","40 a 49"],["50","50 a 59"],["60","60 a 69"],["70","70 o más"]]},
+   {k:"nivel",t:"¿Cómo te mueves hoy?",s:"Sé honesto: así partes al ritmo justo.",o:[["bajo","Casi no me muevo","Trabajo sentado, poco ejercicio"],["medio","Camino o hago algo","Me muevo algunos días"],["alto","Hago ejercicio seguido","3 o más días a la semana"]]},
+   {k:"obj",t:"¿Qué quieres lograr?",s:"Lo dejamos como tu objetivo principal.",o:[["abd","Abdomen más firme"],["fza","Más fuerza"],["ene","Más energía y menos rigidez"]]},
+   {k:"num",t:"Tus medidas de hoy",s:"Para ver tu avance cada semana. La cintura se mide a la altura del ombligo."}];
+  let i=0;
+  function pinta(){
+    const p=pasos[i]; let h=`<div class="barq"><i style="width:${(i+1)/(pasos.length+1)*100}%"></i></div><h2>${p.t}</h2><p class="s">${p.s}</p>`;
+    if(p.o) h+=p.o.map(o=>`<button class="op" data-v="${o[0]}">${o[1]}${o[2]?`<small>${o[2]}</small>`:""}</button>`).join("");
+    else h+=`<input id="q-kg" type="number" inputmode="numeric" placeholder="Peso (kg)"><input id="q-cin" type="number" inputmode="numeric" placeholder="Cintura (cm) · opcional"><button class="go" id="q-go">Ver mi plan</button>`;
+    c.innerHTML=h;
+    c.querySelectorAll(".op").forEach(b=>b.onclick=()=>{b.classList.add("sel");r[p.k]=b.dataset.v;setTimeout(()=>{i++;pinta();},180);});
+    const g=$("q-go"); if(g) g.onclick=()=>{const kgv=parseInt($("q-kg").value),cin=parseInt($("q-cin").value);
+      if(kgv>30&&kgv<250){kg=kgv;LS.set("r28_kg",kg);} if(cin>40&&cin<200) r.cintura=cin; final();};
+  }
+  function final(){
+    LS.set("r28_perfil",r); aplicarPerfil();
+    facil = r.nivel==="bajo"||r.edad==="70"; LS.set("r28_facil",facil);
+    const p0=PLAN[0], p3=PLAN[27];
+    c.innerHTML=`<div class="barq"><i style="width:100%"></i></div><h2>Tu plan está listo 💪</h2><p class="s">28 días para ${OBJ[r.obj].toLowerCase()}, con una silla y unos 10 minutos al día.</p>
+     <div class="res"><div>Semana 1<span>${p0.s} series de ${p0.t} s</span></div><div>Semana 4<span>${p3.s} series de ${p3.t} s</span></div>
+     <div>Ejercicios por día<span>4</span></div><div>Versión fácil<span>${facil?"Activada":"Cuando la necesites"}</span></div></div>
+     <button class="go" id="q-fin">Empezar mi Día 1</button>`;
+    $("q-fin").onclick=()=>{q.classList.remove("on");pintar();};
+  }
+  pinta();
+}
+$("portada").onclick=()=>{$("portada").style.display="none";LS.set("r28_visto",1); if(!LS.get("r28_perfil",null)) quiz();};
+aplicarPerfil();
+if(LS.get("r28_visto",0)){ $("portada").style.display="none"; if(!LS.get("r28_perfil",null)) quiz(); }
+pintar();
+if("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(()=>{});
+</script>
+</body>
+</html>
