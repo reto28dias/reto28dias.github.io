@@ -333,7 +333,7 @@ $("b-saltar").onclick=()=>{ if(S.fase==="descanso"){S.fase="trabajo";S.resta=PLA
 $("b-salir").onclick=()=>{clearInterval(tick);S.corre=false;try{speechSynthesis.cancel()}catch(e){};$("velo").classList.remove("on");};
 $("b-voz").onclick=()=>{voz=!voz;LS.set("r28_voz",voz);estado();if(!voz)try{speechSynthesis.cancel()}catch(e){}};
 $("peso").onclick=()=>{const v=prompt("¿Cuánto pesas hoy? (kg)",kg);const n=parseInt(v);if(n>30&&n<250){kg=n;LS.set("r28_kg",kg);pintar();}};
-const OBJ={abd:"Abdomen más firme",fza:"Más fuerza",ene:"Más energía"};
+const OBJ={abd:"Abdomen firme",fza:"Más fuerza",ene:"Más energía"};
 function quiz(){
   const r={}; const q=$("quiz"), c=$("q-paso"); q.classList.add("on");
   const pasos=[
@@ -355,7 +355,7 @@ function quiz(){
     LS.set("r28_perfil",r); aplicarPerfil();
     facil = r.nivel==="bajo"||r.edad==="70"; LS.set("r28_facil",facil);
     const p0=PLAN[0], p3=PLAN[27];
-    c.innerHTML=`<div class="barq"><i style="width:100%"></i></div><h2>Tu plan está listo 💪</h2><p class="s">28 días para ${OBJ[r.obj].toLowerCase()}, con una silla y unos 10 minutos al día.</p>
+    c.innerHTML=`<div class="barq"><i style="width:100%"></i></div><h2>Tu plan está listo 💪</h2><p class="s">28 días para lograr: ${OBJ[r.obj].toLowerCase()}, con una silla y unos 10 minutos al día.</p>
      <div class="res"><div>Semana 1<span>${p0.s} series de ${p0.t} s</span></div><div>Semana 4<span>${p3.s} series de ${p3.t} s</span></div>
      <div>Ejercicios por día<span>4</span></div><div>Versión fácil<span>${facil?"Activada":"Cuando la necesites"}</span></div></div>
      <button class="go" id="q-fin">Empezar mi Día 1</button>`;
