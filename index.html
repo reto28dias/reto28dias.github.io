@@ -220,7 +220,7 @@ function aplicarPerfil(){
   const pf=LS.get("r28_perfil",null)||{};
   PLAN.forEach((p,i)=>{const b=SEM[Math.floor(i/7)]; let s=b.s,t=b.t;
     if(pf.nivel==="bajo"||pf.edad==="70"){t=Math.max(15,t-5);}
-    else if(pf.nivel==="alto"){t=t+10;}
+    else if(pf.nivel==="alto"||(pf.edad==="30"&&pf.nivel==="medio")){t=t+10;}
     p.s=s;p.t=t;});
 }
 const LS={get(k,d){try{const v=localStorage.getItem(k);return v===null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
@@ -337,7 +337,7 @@ const OBJ={abd:"Abdomen más firme",fza:"Más fuerza",ene:"Más energía"};
 function quiz(){
   const r={}; const q=$("quiz"), c=$("q-paso"); q.classList.add("on");
   const pasos=[
-   {k:"edad",t:"¿Qué edad tienes?",s:"Ajustamos el plan a tu edad.",o:[["40","40 a 49"],["50","50 a 59"],["60","60 a 69"],["70","70 o más"]]},
+   {k:"edad",t:"¿Qué edad tienes?",s:"Ajustamos el plan a tu edad.",o:[["30","30 a 39"],["40","40 a 49"],["50","50 a 59"],["60","60 a 69"],["70","70 o más"]]},
    {k:"nivel",t:"¿Cómo te mueves hoy?",s:"Sé honesto: así partes al ritmo justo.",o:[["bajo","Casi no me muevo","Trabajo sentado, poco ejercicio"],["medio","Camino o hago algo","Me muevo algunos días"],["alto","Hago ejercicio seguido","3 o más días a la semana"]]},
    {k:"obj",t:"¿Qué quieres lograr?",s:"Lo dejamos como tu objetivo principal.",o:[["abd","Abdomen más firme"],["fza","Más fuerza"],["ene","Más energía y menos rigidez"]]},
    {k:"num",t:"Tus medidas de hoy",s:"Para ver tu avance cada semana. La cintura se mide a la altura del ombligo."}];
